@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from .choices import ANIMAL_CHOICES,GENDER_CHOICES
 import uuid
+from django.utils.text import slugify
+
 
 class BaseModel(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4,primary_key=True,editable=False)
@@ -35,10 +37,15 @@ class Animal(BaseModel):
     animal_likes=models.IntegerField(default=1)
     animal_name=models.CharField(max_length=100)     
     animal_description=models.TextField()
-    animal_slug=models.SlugField(max_length=1000,unique=True)
+    animal_slug=models.SlugField(max_length=1000,unique=True,blank=True)
     animal_gender=models.CharField(max_length=100,choices=GENDER_CHOICES)
     animal_breed=models.ManyToManyField(AnimalBreed,blank=True)
     animal_color=models.ManyToManyField(AnimalColor,blank=True)
+    
+    def save(self, *args, **kwargs):
+        uid=str(uuid.uuid4()).split('-')
+        self.animal_slug=slugify(self.animal_name)+uid[0]
+        super(Animal,self).save(*args,**kwargs)
     
     
     def incrementViews(self):

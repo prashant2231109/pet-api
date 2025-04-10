@@ -49,8 +49,35 @@ class AnimalSerializer(serializers.ModelSerializer):
         animal_color=data.pop('animal_color')
         animal=Animal.objects.create(**data,animal_category=Category.objects.get(category_name="Dog"))
         
-        return animal
+        for ab in animal_breed:
+            animal_breed_obj=AnimalBreed.objects.get(breed_name=ab['breed_name'])
+            animal.animal_breed.add(animal_breed_obj)
         
+    
+        for ac in animal_color:
+            animal_color_obj=AnimalColor.objects.get(animal_color=ac['animal_color'])
+            animal.animal_color.add(animal_color_obj)
+            
+            
+        return animal
+    
+    def update(self,instance,data):
+        if 'animal_breed' in data:
+            animal_breed=data.pop('animal_breed')
+            instance.animal_breed.all().clear()
+            for ab in animal_breed:
+                animal_breed_obj=AnimalBreed.objects.get(breed_name=ab['breed_name'])
+                instance.animal_breed.add(animal_breed_obj)
+    
+        if 'animal_color' in data:
+            animal_color=data.pop('animal_color')
+            
+        instance.animal_name=data.get('animal_name',instance.animal_name)
+        instance.animal_description=data.get('animal_description',instance.animal_description)
+        instance.animal_gender=data.get('animal_gender',instance.animal_gender) 
+        
+        instance.save()
+        return instance    
         
         
     class Meta:
