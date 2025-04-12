@@ -64,7 +64,7 @@ class AnimalSerializer(serializers.ModelSerializer):
     def update(self,instance,data):
         if 'animal_breed' in data:
             animal_breed=data.pop('animal_breed')
-            instance.animal_breed.all().clear()
+            instance.animal_breed().clear()
             for ab in animal_breed:
                 animal_breed_obj=AnimalBreed.objects.get(breed_name=ab['breed_name'])
                 instance.animal_breed.add(animal_breed_obj)

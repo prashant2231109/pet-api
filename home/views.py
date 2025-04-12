@@ -9,6 +9,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework import status
+from .permission import IsPetOwnerPermission
 
 
 
@@ -150,7 +151,31 @@ class LoginAPI(APIView):
             
 class AnimalCreateAPI(APIView):
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated,IsPetOwnerPermission]
+    
+    
+    def get(self,request):
+        queryset=Animal.objects.filter(animal_owner=request.user)
+        
+        if request.GET.get('search'):
+            search=request.GET.get('search')
+            queryset=queryset.filter(
+                Q(animal_name__icontains=search)|
+                Q(animal_category__category_name__icontains=search)|
+                Q(animal_description__icontains=search)|
+                Q(animal_gender__iexact=search)|           #iexact is used for case sensitive search or particular search like male or female            
+                Q(animal_breed__breed_name__icontains=search)|
+                Q(animal_color__animal_color__icontains=search)
+            )
+            
+        serializer=AnimalSerializer(queryset, many=True)
+        
+        return Response({
+            'status':True,
+            'message':'animal fetched with Get',
+            'data:':serializer.data
+        })    
+          
     
     def post(self,request):
         try:
@@ -195,6 +220,7 @@ class AnimalCreateAPI(APIView):
                     'message':'inavlid animal id'
                 })
             animal_obj=animal_obj[0]
+            self.check_object_permissions(request=animal_obj)
             serializer=AnimalSerializer(data=request.data)  
             if serializer.is_valid():
                 serializer.save()
@@ -213,7 +239,7 @@ class AnimalCreateAPI(APIView):
             print(e) 
             return Response({
                     'status':False,
-                    'message':'something went wrong',
+                    'message':'something went wrong or you dont have permission to access',
                     'data':{}
                 })            
             
