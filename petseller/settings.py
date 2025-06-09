@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-vbz5u_5n^$z)a(g(j)df9cfwgolgaqtljjq^%#@kxg)!&mf!#9
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]  #4
 
 
 # Application definition
@@ -41,12 +41,15 @@ INSTALLED_APPS = [
      'home',
     'rest_framework',
     'rest_framework.authtoken',
+    "corsheaders",    #3
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    "corsheaders.middleware.CorsMiddleware",  #2
     'django.middleware.common.CommonMiddleware',
+    
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -54,6 +57,9 @@ MIDDLEWARE = [
    
 
 ]
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+                                #1
 
 ROOT_URLCONF = 'petseller.urls'
 
